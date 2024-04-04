@@ -1,2 +1,0 @@
-{"message":"2","context":{"__pail":{"origin":{"type":"http","method":"GET","path":"ep5BP42","auth_id":1,"auth_email":"michael+test@shorty.com","trace":null}}},"level":200,"level_name":"INFO","channel":"pail","datetime":"2024-04-03T22:53:47.495481+00:00","extra":{}}
-{"message":"3","context":{"__pail":{"origin":{"type":"http","method":"GET","path":"ep5BP42","auth_id":1,"auth_email":"michael+test@shorty.com","trace":null}}},"level":200,"level_name":"INFO","channel":"pail","datetime":"2024-04-03T22:54:27.228653+00:00","extra":{}}
