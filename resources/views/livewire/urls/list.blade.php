@@ -20,23 +20,40 @@ new class extends Component {
     {
         $this->urls = auth()->user()->urls()->with('user')->latest()->get();
 
+        $this->updateMetrics();
+    }
+
+    public function delete(ShortUrl $url): void
+    {
+        $this->authorize('delete', $url);
+        $url->delete();
+        $this->getUrls();
+    }
+
+    public function getListeners()
+    {
+
+        $events = [];
+        foreach ($this->urls as $shortUrl) {
+            $events["echo-private:metrics.{$shortUrl->id},ShortUrlMetricsUpdated"] = 'updateMetrics';
+        }
+
+        return $events;
+    }
+
+    public function updateMetrics(): void
+    {
+        $urlRequestMetrics = [];
         foreach ($this->urls as $shortUrl) {
             $requestCount = Redis::get('url:requests:' . $shortUrl->key);
             if (is_null($requestCount)) {
                 $requestCount = 0;
             }
 
-            $this->urlRequestMetrics[$shortUrl->id] = $requestCount;
+            $urlRequestMetrics[$shortUrl->id] = $requestCount;
         }
-    }
 
-    public function delete(ShortUrl $url): void
-    {
-        $this->authorize('delete', $url);
-
-        $url->delete();
-
-        $this->getUrls();
+        $this->urlRequestMetrics = $urlRequestMetrics;
     }
 }; ?>
 
@@ -68,3 +85,12 @@ new class extends Component {
     </div>
     @endforeach
 </div>
+<script>
+    let data = null;
+    document.addEventListener('livewire:load', () => {
+        @this.on('print', () => {
+            data = @this;
+            console.log(data);
+        })
+    })
+</script>

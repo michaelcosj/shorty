@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ShortUrlAccessed;
 use App\Models\ShortUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\View\View;
 
 class ShortUrlController extends Controller
@@ -24,9 +23,7 @@ class ShortUrlController extends Controller
             abort(404, 'route not found');
         }
 
-        $metrics = Redis::command('INCR', ['url:requests:' . $shortUrl->key]);
-
-        Log::info($metrics);
+        ShortUrlAccessed::dispatch($shortUrl, $request->ip());
 
         return redirect($shortUrl->url);
     }
