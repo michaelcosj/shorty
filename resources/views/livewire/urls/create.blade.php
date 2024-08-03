@@ -45,12 +45,12 @@ new class extends Component {
 <div>
     <form wire:submit="store">
 
-        <div class="flex gap-3 items-center w-full justify-center">
+        <div class="flex flex-col md:flex-row gap-3 items-center w-full justify-center">
             <x-text-input
-                class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
+                class="min-w-fit block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
                 wire:model="url" placeholder="{{ __('www.example.com/something') }}" />
             <x-text-input
-                class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
+                class="min-w-fit block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
                 wire:model="key" placeholder="{{ __('Key') }}" />
             <x-primary-button>{{ __('Create') }}</x-primary-button>
         </div>
