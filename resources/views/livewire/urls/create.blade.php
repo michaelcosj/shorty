@@ -5,7 +5,6 @@ use Livewire\Attributes\Validate;
 use Livewire\Volt\Component;
 
 new class extends Component {
-    //
     #[Validate('required|string|max:255|url')]
     public string $url = '';
 
@@ -17,10 +16,16 @@ new class extends Component {
         $this->generateKey();
     }
 
+    public function updatingUrl() {
+        $this->url = strpos($this->url, 'http') !== 0 ? "http://$this->url" : $this->url;
+    }
+
     public function store(): void
     {
-        $this->validate();
+        // laravel url validation expects 'http' to be in the url
+        $this->url = strpos($this->url, 'http') !== 0 ? "http://$this->url" : $this->url;
 
+        $this->validate();
         auth()
             ->user()
             ->urls()
@@ -29,16 +34,16 @@ new class extends Component {
                 'url' => $this->url,
             ]);
 
-        $this->url = '';
+        $this->reset('url');
         $this->generateKey();
-
         $this->dispatch('url-shortened');
     }
 
     public function generateKey(): void
     {
+        $alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
         $nanoIDClient = new Client();
-        $this->key = $nanoIDClient->generateId(7);
+        $this->key = $nanoIDClient->formattedId($alphabet, size: 7);
     }
 }; ?>
 
@@ -56,6 +61,5 @@ new class extends Component {
         </div>
         <x-input-error :messages="$errors->get('url')" class="mt-2" />
         <x-input-error :messages="$errors->get('key')" class="mt-2" />
-
     </form>
 </div>

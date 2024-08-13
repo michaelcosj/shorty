@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Redis;
 
 new class extends Component {
     public Collection $urls;
-    public array $urlRequestMetrics;
+    public array $urlVisits;
 
     public function mount(): void
     {
@@ -41,43 +41,62 @@ new class extends Component {
 
     public function getVisits(): void
     {
-        $urlRequestMetrics = [];
+        $urlVisits = [];
         foreach ($this->urls as $shortUrl) {
-            $requestCount = Redis::get('url:visits:' . $shortUrl->key);
-            if (is_null($requestCount)) {
-                $requestCount = 0;
+            $visits = Redis::get('url:visits:' . $shortUrl->key);
+            if (is_null($visits)) {
+                $visits = 0;
             }
 
-            $urlRequestMetrics[$shortUrl->id] = $requestCount;
+            $urlVisits[$shortUrl->id] = $visits;
         }
 
-        $this->urlRequestMetrics = $urlRequestMetrics;
+        $this->urlVisits = $urlVisits;
     }
 }; ?>
 
 <div class="mt-6 divide-y flex flex-col gap-2">
     @foreach ($urls as $url)
-    <div class="shadow-sm rounded-lg bg-white p-6 flex space-x-2" wire:key="{{ $url->id }}">
-        <div class="flex-1">
-            <div class="flex justify-between items-center gap-12">
-                <span class="text-gray-500 text-sm">{{ __('Redirects to: ') }}{{ $url->url }}</span>
-                <div class="cursor-pointer" wire:click="delete({{ $url->id }})"
-                    wire:confirm="Do you want to delete this item?">
-                    <div class="h-8 w-8 flex justify-center items-center rounded-full hover:bg-red-600 group">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="size-6 group-hover:text-white">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                        </svg>
-                    </div>
+    <div class="shadow-sm rounded-lg bg-white py-4 px-6 flex space-x-2" wire:key="{{ $url->id }}">
+        <div class="flex-1 flex flex-col gap-4">
+            <div class="flex flex-wrap gap-2 md:justify-between items-center w-full py-2">
+                <div>
+                    <x-secondary-button onclick="alert('TODO')" class="min-w-fit">
+                        Download QR Code
+                    </x-secondary-button>
+
+                    <x-secondary-button onclick="addToClipboard('pussio');alert('Copied to clipboard')"
+                        class="min-w-fit">
+                        Copy
+                    </x-secondary-button>
                 </div>
+
+                <x-danger-button wire:click="delete({{ $url->id }})" wire:confirm="Do you want to delete this item?">
+                    Delete
+                </x-danger-button>
             </div>
-            <a href={{ route('go', ['key'=> $url->key]) }}>
-                <p class="mt-4 text-lg text-gray-900">{{ route('go', ['key' => $url->key]) }}</p>
-            </a>
-            <div class="pt-3">
-                <span class="text-gray-500 text-sm">{{ __('Visits: ') }}{{ $urlRequestMetrics[$url->id] }}</span>
+            <div class="flex flex-col">
+                <a href="{{ route('go', ['key' => $url->key]) }}" class="text-blue-800 hover:underline hover:font-bold">
+                    {{ route('go', ['key' => $url->key]) }}
+                </a>
+                <a href="{{ $url->url }}" class="text-black">{{ $url->url }}</a>
+            </div>
+            <div class="flex justify-end items-center gap-3">
+                <p class="text-gray-800 text-sm">
+                    {{ Carbon\Carbon::createFromTimeString($url->created_at)->toFormattedDayDateString() }}</p>
+                <p class="text-gray-800 text-sm">{{ __('Visits: ') }}{{ $urlVisits[$url->id] }}</p>
             </div>
         </div>
     </div>
     @endforeach
 </div>
+
+<script>
+    function addToClipboard(text) {
+        console.log("adding to clipboard...")
+        navigator.clipboard.writeText(text).then(
+            () => console.log(`successfully wrote ${text} to clipboard`),
+            () => console.log(`failed writing ${text} to clipboard`)
+        )
+    }
+</script>
