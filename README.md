@@ -37,4 +37,4 @@ php artisan reverb:start
 ```
 
 # Screenshot
-![screenshot](./shorty.png)
+![screenshot](./shorty_screenshot.png)
